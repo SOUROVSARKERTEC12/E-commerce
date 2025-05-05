@@ -5,6 +5,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import debug from 'debug';
 import expressStatusMonitor from 'express-status-monitor';
+import productRoutes from './routes/product.route';
 
 dotenv.config();
 
@@ -17,16 +18,19 @@ app.use(cors());         // Enable CORS
 app.use(helmet());       // Secure HTTP headers
 app.use(morgan('dev'));  // Log HTTP requests
 app.use(morgan('combined'));
-app.use(expressStatusMonitor());
 
 
-app.get('/status', expressStatusMonitor());
+const monitor = expressStatusMonitor({ path: '/api' });
+app.use(monitor);
+
 const log = debug('app:server');
 log('Server is running...');
 // ✅ Routes
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello from TypeScript + Express!');
 });
+
+app.use('/api',productRoutes)
 
 // ✅ Start server
 app.listen(PORT, () => {
