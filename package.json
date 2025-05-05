@@ -1,0 +1,43 @@
+{
+  "name": "ecommerce-api",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "MIT",
+  "scripts": {
+    "clean": "rimraf dist",
+    "prebuild": "yarn clean",
+    "build": "tsc",
+    "dev": "nodemon --watch src --ext ts --exec ts-node src/index.ts",
+    "start": "node dist/index.js"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/debug": "^4.1.12",
+    "@types/express": "^5.0.1",
+    "@types/express-status-monitor": "^1.3.3",
+    "@types/morgan": "^1.9.9",
+    "@types/node": "^22.15.3",
+    "nodemon": "^3.1.10",
+    "rimraf": "^5.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/your-repo.git"
+  },
+  "author": "sourov",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "debug": "^4.4.0",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "express-status-monitor": "^1.3.4",
+    "helmet": "^8.1.0",
+    "morgan": "^1.10.0"
+  }
+}
