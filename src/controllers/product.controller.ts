@@ -1,23 +1,49 @@
 import { Request, Response } from 'express';
 import httpStatus from 'http-status-codes';
-import { Product } from '../interface/product.interface';
+import * as ProductService from '../services/product.service';
 
-export const getProductController = async(req: Request, res: Response)=>{
+export const getProductController = async (req: Request, res: Response): Promise<void> => {
     try {
-        const products:Product[] = [
-            { id: 1, name: 'Product 1', price: 100},
-            { id: 2, name: 'Product 2', price: 200 },
-        ];
-        res.status(httpStatus.OK).send({
-            status: httpStatus.OK,
-            message: 'Products fetched successfully',
-            data: products
-        });
+      const products = await ProductService.getAllProducts();
+      res.status(httpStatus.OK).json({
+        status: httpStatus.OK,
+        message: 'Products fetched successfully',
+        data: products,
+      });
     } catch (error) {
-        res.status(500).json({ message: 'Internal Server Error' });
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Internal Server Error' });
     }
-}
+  };
+  
+  export const getProductControllerById = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const id = parseInt(req.params.id, 10);
+      const product = await ProductService.getProductById(id);
+      if (!product) {
+        res.status(httpStatus.NOT_FOUND).json({
+          status: httpStatus.NOT_FOUND,
+          message: 'Product not found',
+        });
+        return;
+      }
+      res.status(httpStatus.OK).json({
+        status: httpStatus.OK,
+        message: 'Product fetched successfully',
+        data: product,
+      });
+    } catch (error) {
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Internal Server Error' });
+    }
+  };
 
 export const createProductController = async(req: Request, res: Response)=>{
+
+}
+
+export const updateProductController = async(req: Request, res: Response) : Promise<void>=>{
+
+}
+
+export const deleteProductController = async(req: Request, res: Response):Promise<void>=>{
 
 }
