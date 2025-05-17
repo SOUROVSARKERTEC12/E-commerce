@@ -37,7 +37,17 @@ export const getProductController = async (req: Request, res: Response): Promise
   };
 
 export const createProductController = async(req: Request, res: Response)=>{
-
+    try {
+        const productData = req.body;
+        const newProduct = await ProductService.createProduct(productData);
+        res.status(httpStatus.CREATED).json({
+            status: httpStatus.CREATED,
+            message: 'Product created successfully',
+            data: newProduct,
+        });
+    } catch (error) {
+        res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Internal Server Error' });
+    }
 }
 
 export const updateProductController = async(req: Request, res: Response) : Promise<void>=>{
