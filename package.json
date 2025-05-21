@@ -5,6 +5,8 @@
   "types": "dist/index.d.ts",
   "license": "MIT",
   "scripts": {
+    "test": "tsx --test src/test/**/*.test.ts",
+    "test:watch": "tsx --test src/test --watch",
     "clean": "rimraf dist",
     "prebuild": "yarn clean",
     "build": "tsc",
@@ -20,12 +22,13 @@
     "@types/express": "^5.0.1",
     "@types/express-status-monitor": "^1.3.3",
     "@types/morgan": "^1.9.9",
-    "@types/node": "^22.15.3",
+    "@types/node": "^22.15.21",
     "@types/pg": "^8.15.1",
     "dotenv": "^16.5.0",
     "drizzle-kit": "^0.31.1",
     "nodemon": "^3.1.10",
     "rimraf": "^5.0.0",
+    "sinon": "^20.0.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3"
@@ -39,6 +42,7 @@
   },
   "author": "sourov",
   "dependencies": {
+    "@types/sinon": "^17.0.4",
     "cors": "^2.8.5",
     "debug": "^4.4.0",
     "drizzle-orm": "^0.43.1",
