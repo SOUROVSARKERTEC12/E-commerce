@@ -1,11 +1,17 @@
 // tests/services/product.service.create.test.ts
-import { describe, it, mock, afterEach } from "node:test";
+import { describe, it, mock, afterEach, beforeEach } from "node:test";
 import assert from "node:assert";
-import { createProduct } from "../../services/product.service";
+import { ProductService } from "../../services/product.service";
 import { db } from "../../db/index";
 import type { Product } from "../../interface/product.interface";
 
 describe("Product Service - createProduct", () => {
+  let productService: ProductService;
+
+  beforeEach(() => {
+    productService = new ProductService();
+  });
+
   // Mock the db.insert method
   const mockInsert = mock.method(db, "insert", () => ({
     values: () => ({
@@ -32,7 +38,7 @@ describe("Product Service - createProduct", () => {
       quantity: 10,
     };
 
-    const result = await createProduct(productData as Product);
+    const result = await productService.createProduct(productData as Product);
     assert.strictEqual(result.name, productData.name);
     assert.strictEqual(result.price, productData.price);
     assert.strictEqual(result.description, productData.description);
@@ -52,7 +58,7 @@ describe("Product Service - createProduct", () => {
       quantity: 5,
     };
 
-    const result = await createProduct(productData as Product);
+    const result = await productService.createProduct(productData as Product);
     assert.strictEqual(result.name, "Test Product");
     assert.strictEqual(result.price, 99.99);
     assert.strictEqual(result.description, "Test Description");
@@ -60,7 +66,6 @@ describe("Product Service - createProduct", () => {
     assert.strictEqual(result.quantity, 10);
   });
 
-  // Reset mocks after each test
   afterEach(() => {
     mockInsert.mock.resetCalls();
   });
