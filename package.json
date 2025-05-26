@@ -5,7 +5,7 @@
   "types": "dist/index.d.ts",
   "license": "MIT",
   "scripts": {
-    "test": "tsx --test src/test/**/*.test.ts",
+    "test": "tsx --test src/tests/**/*.test.ts",
     "test:watch": "tsx --test src/test --watch",
     "clean": "rimraf dist",
     "prebuild": "yarn clean",

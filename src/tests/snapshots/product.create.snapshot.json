@@ -1,0 +1,7 @@
+{
+  "name": "Test Product",
+  "image": "mocked-image-url",
+  "price": 99.99,
+  "description": "Test Description",
+  "quantity": 10
+}
