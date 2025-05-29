@@ -2165,3 +2165,8 @@ yn@3.1.1:
   version "3.1.1"
   resolved "https://registry.npmjs.org/yn/-/yn-3.1.1.tgz"
   integrity sha512-Ux4ygGWsu2c7isFWe8Yu1YluJmqVhxqK2cLXNQA5AcC3QfbGNpM7fu0Y8b/z16pXLnFxZYvWhd3fhBY9DLmC6Q==
+
+zod@^3.25.36:
+  version "3.25.36"
+  resolved "https://registry.yarnpkg.com/zod/-/zod-3.25.36.tgz#e5ae0fb7803662b8a21d9a1e282e7d5b8ff57726"
+  integrity sha512-eRFS3i8T0IrpGdL8HQyqFAugGOn7jOjyGgGdtv5NY4Wkhi7lJDk732bNZ609YMIGFbLoaj6J69O1Mura23gfIw==
