@@ -13,7 +13,6 @@ router
   .route("/products")
   .get(getProductController)
   .post(createProductController)
-  .put(updateProductController)
   .patch(updateProductController);
 
 router

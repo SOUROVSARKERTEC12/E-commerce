@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import httpStatus from 'http-status-codes';
 import { ProductService } from '../services/product.service';
+import { Product } from '../interface/product.interface';
 
 const productService = new ProductService();
 
@@ -12,64 +13,113 @@ export const getProductController = async (req: Request, res: Response): Promise
       message: 'Products fetched successfully',
       data: products,
     });
-  } catch (error) {
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Internal Server Error' });
+  } catch (error: any) {
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      message: 'Internal Server Error',
+      error: error.message,
+    });
   }
 };
 
 export const getProductControllerById = async (req: Request, res: Response): Promise<void> => {
   try {
     const id = parseInt(req.params.id, 10);
-    const product = await productService.getProductById(id);
-    if (!product) {
-      res.status(httpStatus.NOT_FOUND).json({
-        status: httpStatus.NOT_FOUND,
-        message: 'Product not found',
-      });
+    if (isNaN(id)) {
+      res.status(httpStatus.BAD_REQUEST).json({ message: 'Invalid product ID' });
       return;
     }
+
+    const product = await productService.getProductById(id);
+    if (!product) {
+      res.status(httpStatus.NOT_FOUND).json({ message: 'Product not found' });
+      return;
+    }
+
     res.status(httpStatus.OK).json({
       status: httpStatus.OK,
       message: 'Product fetched successfully',
       data: product,
     });
-  } catch (error) {
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Internal Server Error' });
+  } catch (error: any) {
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      message: 'Internal Server Error',
+      error: error.message,
+    });
   }
 };
 
 export const createProductController = async (req: Request, res: Response): Promise<void> => {
   try {
-    const productData = req.body;
+    const productData: Product = req.body;
+    if (!productData.name || !productData.price) {
+      res.status(httpStatus.BAD_REQUEST).json({ message: 'Missing required product fields' });
+      return;
+    }
+
     const newProduct = await productService.createProduct(productData);
     res.status(httpStatus.CREATED).json({
       status: httpStatus.CREATED,
       message: 'Product created successfully',
       data: newProduct,
     });
-  } catch (error) {
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Internal Server Error' });
+  } catch (error: any) {
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      message: 'Internal Server Error',
+      error: error.message,
+    });
   }
 };
 
-// Placeholder for updating a product
 export const updateProductController = async (req: Request, res: Response): Promise<void> => {
   try {
-    res.status(httpStatus.NOT_IMPLEMENTED).json({
-      message: 'Update product functionality not implemented yet.',
+    const id = parseInt(req.body.id);
+  
+    if (isNaN(id)) {
+      res.status(httpStatus.BAD_REQUEST).json({ message: 'Invalid product ID' });
+      return;
+    }
+
+    const updated = await productService.updateProduct(id, req.body);
+    if (!updated) {
+      res.status(httpStatus.NOT_FOUND).json({ message: 'Product not found' });
+      return;
+    }
+
+    res.status(httpStatus.OK).json({
+      status: httpStatus.OK,
+      message: 'Product updated successfully',
+      data: updated
     });
-  } catch (error) {
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Internal Server Error' });
+  } catch (error: any) {
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      message: 'Internal Server Error',
+      error: error.message,
+    });
   }
 };
 
-// Placeholder for deleting a product
 export const deleteProductController = async (req: Request, res: Response): Promise<void> => {
   try {
-    res.status(httpStatus.NOT_IMPLEMENTED).json({
-      message: 'Delete product functionality not implemented yet.',
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+      res.status(httpStatus.BAD_REQUEST).json({ message: 'Invalid product ID' });
+      return;
+    }
+
+    const deleted = await productService.deleteProduct(id);
+    if (!deleted) {
+      res.status(httpStatus.NOT_FOUND).json({ message: 'Product not found' });
+      return;
+    }
+
+    res.status(httpStatus.OK).json({
+      status: httpStatus.OK,
+      message: 'Product deleted successfully',
     });
-  } catch (error) {
-    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Internal Server Error' });
+  } catch (error: any) {
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+      message: 'Internal Server Error',
+      error: error.message,
+    });
   }
 };
