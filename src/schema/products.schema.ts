@@ -1,4 +1,3 @@
-import { uuid } from "drizzle-orm/gel-core";
 import z from "zod";
 
 export const InsertProductSchema = z.object({
@@ -12,10 +11,11 @@ export const InsertProductSchema = z.object({
 })
 
 
+// export const UpdateProductSchema = InsertProductSchema.partial()
 export const UpdateProductSchema = z.object({
     body: z.object({
         id:z.number().int().nonnegative("ID must be a non-negative integer"),
-        uuid: z.string().uuid("Invalid UUID format"),
+        uuid: z.string().optional(),
         name: z.string().min(1, "Name is required").optional(),
         description: z.string().min(1, "Description is required").optional(),
         image: z.string().optional(),

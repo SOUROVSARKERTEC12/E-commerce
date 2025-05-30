@@ -14,6 +14,7 @@ interface ValidationOptions {
   onError?: (error: ZodError, req: Request) => void;
 }
 
+
 export const asyncValidate =
   ({ schema, onError }: ValidationOptions) =>
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -26,25 +27,30 @@ export const asyncValidate =
         if (!schema[part]) return data;
 
         const partSchema = schema[part] as AnyZodObject;
-
         // Check if schema has its own property matching the part name (nested)
         if (part in partSchema.shape) {
           const result = await partSchema.parseAsync({ [part]: data });
           return result[part];
         }
-        const parse = await partSchema.parseAsync(data);
-        // Normal case
-        return parse
+        return await partSchema.parseAsync(data);
       };
 
-      // Validate each part
+    
       req.body = await validateNested("body", req.body);
-      req.query = await validateNested("query", req.query);
-      req.params = await validateNested("params", req.params);
-      req.headers = await validateNested("headers", req.headers);
+
+      // For read-only properties, create new objects instead of direct assignment
+      const validatedQuery = await validateNested("query", req.query);
+      const validatedParams = await validateNested("params", req.params);
+      const validatedHeaders = await validateNested("headers", req.headers);
+
+      // Merge validated values into request without direct assignment
+      Object.assign(req.query, validatedQuery);
+      Object.assign(req.params, validatedParams);
+      Object.assign(req.headers, validatedHeaders);
 
       next();
     } catch (error) {
+      console.error('Validation error:', error);
       if (error instanceof ZodError) {
         if (onError) onError(error, req);
         const errorDetails = error.errors.map((err) => {
