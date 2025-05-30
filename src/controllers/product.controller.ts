@@ -1,3 +1,4 @@
+import { createProductDto } from './../dtos/create.product.dto';
 import { Request, Response } from 'express';
 import httpStatus from 'http-status-codes';
 import { ProductService } from '../services/product.service';
@@ -50,7 +51,7 @@ export const getProductControllerById = async (req: Request, res: Response): Pro
 
 export const createProductController = async (req: Request, res: Response): Promise<void> => {
   try {
-    const productData: Product = req.body;
+    const productData: Product = createProductDto.fromInput(req.body);
     if (!productData.name || !productData.price) {
       res.status(httpStatus.BAD_REQUEST).json({ message: 'Missing required product fields' });
       return;

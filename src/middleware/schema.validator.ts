@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { AnyZodObject, ZodError, z } from "zod";
+import { AnyZodObject, ZodError } from "zod";
 
-// Schema can now validate body, query, params, etc., in one object
 interface ValidationSchema {
   body?: AnyZodObject;
   query?: AnyZodObject;
@@ -9,43 +8,80 @@ interface ValidationSchema {
   headers?: AnyZodObject;
 }
 
-// Options now accept the full schema
 interface ValidationOptions {
   schema: ValidationSchema;
   onError?: (error: ZodError, req: Request) => void;
 }
 
+
 export const asyncValidate =
-  (options: ValidationOptions) =>
-  async (req: Request, res: Response, next: NextFunction) => {
-    const { schema, onError } = options;
+  ({ schema, onError }: ValidationOptions) =>
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      // Validate each part of the request (body, query, params, etc.)
-      if (schema.body) {
-        req.body = await schema.body.parseAsync(req.body);
-      }
-      if (schema.query) {
-        req.query = await schema.query.parseAsync(req.query);
-      }
-      if (schema.params) {
-        req.params = await schema.params.parseAsync(req.params);
-      }
-      if (schema.headers) {
-        req.headers = await schema.headers.parseAsync(req.headers);
-      }
+      // Helper function to handle nested validation
+      const validateNested = async (part: 'body' | 'query' | 'params' | 'headers', data: any) => {
+        if (!schema[part]) return data;
+        
+        const partSchema = schema[part] as AnyZodObject;
+        
+        // Check if schema has its own property matching the part name (nested)
+        if (part in partSchema.shape) {
+          const result = await partSchema.parseAsync({ [part]: data });
+          return result[part];
+        }
+        // Normal case
+        return await partSchema.parseAsync(data);
+      };
+
+      // Validate each part
+      req.body = await validateNested('body', req.body);
+      req.query = await validateNested('query', req.query);
+      req.params = await validateNested('params', req.params);
+      req.headers = await validateNested('headers', req.headers);
 
       next();
     } catch (error) {
       if (error instanceof ZodError) {
         if (onError) onError(error, req);
 
-        return res.status(400).json({
-          success: false,
-          errors: error.errors.map((err) => ({
-            path: err.path.join("."),
+        const errorDetails = error.errors.map((err) => {
+          // Determine location and clean path
+          const locations = ['body', 'query', 'params', 'headers'] as const;
+          const location = locations.find(loc => 
+            schema[loc] && err.path.includes(loc)
+          ) || 'body';
+
+          // Remove location prefix if it exists
+          let cleanPath = err.path.join('.');
+          if (err.path[0] === location) {
+            cleanPath = err.path.slice(1).join('.') || '(root)';
+          }
+
+          // Handle double-nested case (e.g., body.body)
+          if (err.path.length >= 2 && err.path[0] === location && err.path[1] === location) {
+            cleanPath = err.path.slice(2).join('.') || '(root)';
+          }
+
+          return {
+            location,
+            field: cleanPath,
             message: err.message,
-          })),
+            code: err.code,
+          };
         });
+
+        res.status(400).json({
+          success: false,
+          message: "Validation failed",
+          errors: errorDetails,
+          validated: {
+            body: !!schema.body,
+            query: !!schema.query,
+            params: !!schema.params,
+            headers: !!schema.headers,
+          },
+        });
+        return;
       }
       next(error);
     }
